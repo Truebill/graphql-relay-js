@@ -119,7 +119,7 @@ export function connectionDefinitions(
           description: 'Information to aid in pagination.',
         },
         edges: {
-          type: new GraphQLList(edgeType),
+          type: new GraphQLNonNull(new GraphQLList(edgeType)),
           description: 'A list of edges.',
         },
         ...(resolveMaybeThunk(connectionFields): any),
