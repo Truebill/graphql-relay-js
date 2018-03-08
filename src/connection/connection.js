@@ -68,8 +68,8 @@ type ConnectionConfig = {
 };
 
 type GraphQLConnectionDefinitions = {
-  edgeType: GraphQLObjectType,
-  connectionType: GraphQLObjectType,
+  edgeType: GraphQLNonNull<GraphQLObjectType>,
+  connectionType: GraphQLNonNull<GraphQLObjectType>,
 };
 
 function resolveMaybeThunk<T>(thingOrThunk: Thunk<T>): T {
