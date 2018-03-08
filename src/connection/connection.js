@@ -13,7 +13,7 @@ import {
   GraphQLNonNull,
   GraphQLList,
   GraphQLObjectType,
-  GraphQLString
+  GraphQLString,
 } from 'graphql';
 
 import type {
@@ -29,10 +29,10 @@ import type {
  */
 export const forwardConnectionArgs: GraphQLFieldConfigArgumentMap = {
   after: {
-    type: GraphQLString
+    type: GraphQLString,
   },
   first: {
-    type: GraphQLInt
+    type: GraphQLInt,
   },
 };
 
@@ -42,10 +42,10 @@ export const forwardConnectionArgs: GraphQLFieldConfigArgumentMap = {
  */
 export const backwardConnectionArgs: GraphQLFieldConfigArgumentMap = {
   before: {
-    type: GraphQLString
+    type: GraphQLString,
   },
   last: {
-    type: GraphQLInt
+    type: GraphQLInt,
   },
 };
 
@@ -69,7 +69,7 @@ type ConnectionConfig = {
 
 type GraphQLConnectionDefinitions = {
   edgeType: GraphQLObjectType,
-  connectionType: GraphQLObjectType
+  connectionType: GraphQLObjectType,
 };
 
 function resolveMaybeThunk<T>(thingOrThunk: Thunk<T>): T {
@@ -81,49 +81,53 @@ function resolveMaybeThunk<T>(thingOrThunk: Thunk<T>): T {
  * and whose nodes are of the specified type.
  */
 export function connectionDefinitions(
-  config: ConnectionConfig
+  config: ConnectionConfig,
 ): GraphQLConnectionDefinitions {
-  const {nodeType} = config;
+  const { nodeType } = config;
   const name = config.name || nodeType.name;
   const edgeFields = config.edgeFields || {};
   const connectionFields = config.connectionFields || {};
   const resolveNode = config.resolveNode;
   const resolveCursor = config.resolveCursor;
-  const edgeType = new GraphQLObjectType({
-    name: name + 'Edge',
-    description: 'An edge in a connection.',
-    fields: () => ({
-      node: {
-        type: nodeType,
-        resolve: resolveNode,
-        description: 'The item at the end of the edge',
-      },
-      cursor: {
-        type: new GraphQLNonNull(GraphQLString),
-        resolve: resolveCursor,
-        description: 'A cursor for use in pagination'
-      },
-      ...(resolveMaybeThunk(edgeFields): any)
+  const edgeType = new GraphQLNonNull(
+    new GraphQLObjectType({
+      name: name + 'Edge',
+      description: 'An edge in a connection.',
+      fields: () => ({
+        node: {
+          type: new GraphQLNonNull(nodeType),
+          resolve: resolveNode,
+          description: 'The item at the end of the edge',
+        },
+        cursor: {
+          type: new GraphQLNonNull(GraphQLString),
+          resolve: resolveCursor,
+          description: 'A cursor for use in pagination',
+        },
+        ...(resolveMaybeThunk(edgeFields): any),
+      }),
     }),
-  });
+  );
 
-  const connectionType = new GraphQLObjectType({
-    name: name + 'Connection',
-    description: 'A connection to a list of items.',
-    fields: () => ({
-      pageInfo: {
-        type: new GraphQLNonNull(pageInfoType),
-        description: 'Information to aid in pagination.'
-      },
-      edges: {
-        type: new GraphQLList(edgeType),
-        description: 'A list of edges.'
-      },
-      ...(resolveMaybeThunk(connectionFields): any)
+  const connectionType = new GraphQLNonNull(
+    new GraphQLObjectType({
+      name: name + 'Connection',
+      description: 'A connection to a list of items.',
+      fields: () => ({
+        pageInfo: {
+          type: new GraphQLNonNull(pageInfoType),
+          description: 'Information to aid in pagination.',
+        },
+        edges: {
+          type: new GraphQLList(edgeType),
+          description: 'A list of edges.',
+        },
+        ...(resolveMaybeThunk(connectionFields): any),
+      }),
     }),
-  });
+  );
 
-  return {edgeType, connectionType};
+  return { edgeType, connectionType };
 }
 
 /**
@@ -135,19 +139,19 @@ const pageInfoType = new GraphQLObjectType({
   fields: () => ({
     hasNextPage: {
       type: new GraphQLNonNull(GraphQLBoolean),
-      description: 'When paginating forwards, are there more items?'
+      description: 'When paginating forwards, are there more items?',
     },
     hasPreviousPage: {
       type: new GraphQLNonNull(GraphQLBoolean),
-      description: 'When paginating backwards, are there more items?'
+      description: 'When paginating backwards, are there more items?',
     },
     startCursor: {
       type: GraphQLString,
-      description: 'When paginating backwards, the cursor to continue.'
+      description: 'When paginating backwards, the cursor to continue.',
     },
     endCursor: {
       type: GraphQLString,
-      description: 'When paginating forwards, the cursor to continue.'
+      description: 'When paginating forwards, the cursor to continue.',
     },
-  })
+  }),
 });
